@@ -1,0 +1,55 @@
+package com.example.sns.service;
+
+import com.example.sns.dto.UserResponse;
+import com.example.sns.entity.User;
+import com.example.sns.enumerate.ErrorCode;
+import com.example.sns.exception.SnsApplicationException;
+import com.example.sns.repository.UserRepository;
+import com.example.sns.util.JWTUtil;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class UserService {
+
+    private final UserRepository userRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final JWTUtil jwtUtil;
+
+    @Transactional
+    public UserResponse.JoinDTO join(String username, String password) {
+        // 회원가입하려는 username 으로 회원가입된 user 가 있는지
+        userRepository.findByUsername(username).ifPresent(u -> {
+            throw new SnsApplicationException(ErrorCode.DUPLICATED_USER_NAME, String.format("%s is duplicated", username));
+        });
+
+        // 회원가입 진행 = user 등록
+        User user = userRepository.save(
+                User.of(username, bCryptPasswordEncoder.encode(password), "ROLE_ADMIN"));
+
+        return UserResponse.JoinDTO.from(user);
+    }
+
+    @Transactional
+    public UserResponse.LoginDTO login(String username, String password) {
+        // 회원가입 여부 체크
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new SnsApplicationException(ErrorCode.USER_NOT_FOUND, String.format("%s not founded", username)));
+
+        // 비밀번호 체크
+        if(!bCryptPasswordEncoder.matches(password, user.getPassword())) {
+            throw new SnsApplicationException(ErrorCode.INVALID_PASSWORD, null);
+        }
+
+        // 토큰 생성
+        String token = jwtUtil.createJwt(user.getUsername(), user.getRole(), 60 * 60 * 10L);
+
+        return UserResponse.LoginDTO.builder()
+                .token(token)
+                .build();
+    }
+}
