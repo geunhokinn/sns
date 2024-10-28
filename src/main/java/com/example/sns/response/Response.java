@@ -8,26 +8,46 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Response<T> {
 
-    private String statusCode;
-    private T data;
+    private String resultCode;
+    private T result;
 
     @Builder
-    private Response(String statusCode, T data) {
-        this.statusCode = statusCode;
-        this.data = data;
+    private Response(String resultCode, T result) {
+        this.resultCode = resultCode;
+        this.result = result;
     }
 
     public static Response<Void> error(String errorCode) {
         return Response.<Void>builder()
-                .statusCode(errorCode)
-                .data(null)
+                .resultCode(errorCode)
+                .result(null)
                 .build();
     }
 
     public static <T> Response<T> success(T result) {
         return Response.<T>builder()
-                .statusCode("SUCCESS")
-                .data(result)
+                .resultCode("SUCCESS")
+                .result(result)
                 .build();
+    }
+
+    public static Response<Void> success() {
+        return Response.<Void>builder()
+                .resultCode("SUCCESS")
+                .result(null)
+                .build();
+    }
+
+    public String toStream() {
+        if (result == null) {
+            return "{" +
+                    "\"resultCode\":" + "\"" + resultCode + "\"," +
+                    "\"result\":" + null +
+                    "}";
+        }
+        return "{" +
+                "\"resultCode\":" + "\"" + resultCode + "\"," +
+                "\"result\":" + "\"" + result + "\"," +
+                "}";
     }
 }
