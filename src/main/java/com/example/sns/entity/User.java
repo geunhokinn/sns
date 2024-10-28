@@ -10,6 +10,8 @@ import org.hibernate.annotations.Where;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -34,6 +36,9 @@ public class User {
 
     private Timestamp deletedAt;
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.REMOVE)
+    private final List<Post> posts = new ArrayList<>();
+
     @PrePersist
     void createdAt() {
         this.createdAt = Timestamp.from(Instant.now());
@@ -57,5 +62,15 @@ public class User {
                 .password(password)
                 .role(role)
                 .build();
+    }
+
+    // User 1 <-> N Post
+    // 양방향 연관관계 편의 메서드
+    public void addPost(Post post) {
+        this.posts.add(post);
+
+        if(post.getUser() != this) {
+            post.assignUser(this);
+        }
     }
 }
