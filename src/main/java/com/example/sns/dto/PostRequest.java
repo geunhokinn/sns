@@ -20,4 +20,18 @@ public class PostRequest {
             this.body = body;
         }
     }
+
+    @Getter
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    public static class UpdateDTO {
+
+        private String title;
+        private String body;
+
+        @Builder
+        public UpdateDTO(String title, String body) {
+            this.title = title;
+            this.body = body;
+        }
+    }
 }
