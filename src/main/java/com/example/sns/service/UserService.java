@@ -46,7 +46,7 @@ public class UserService {
         }
 
         // 토큰 생성
-        String token = jwtUtil.createJwt(user.getUsername(), user.getRole(), 60 * 60 * 10L);
+        String token = jwtUtil.createJwt(user.getUsername(), user.getRole(), 60 * 60 * 10 * 1000L);
 
         return UserResponse.LoginDTO.builder()
                 .token(token)
