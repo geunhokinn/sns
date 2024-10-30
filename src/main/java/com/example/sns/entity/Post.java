@@ -31,15 +31,15 @@ public class Post {
     @JoinColumn(name = "user_id")
     private User user;
 
-    private Timestamp createdAt;
+    private Timestamp registeredAt;
 
     private Timestamp updatedAt;
 
     private Timestamp deletedAt;
 
     @PrePersist
-    void createdAt() {
-        this.createdAt = Timestamp.from(Instant.now());
+    void registeredAt() {
+        this.registeredAt = Timestamp.from(Instant.now());
     }
 
     @PreUpdate
@@ -74,5 +74,10 @@ public class Post {
         if(!user.getPosts().contains(this)) {
             user.addPost(this);
         }
+    }
+
+    public void update(String title, String body) {
+        this.title = title;
+        this.body = body;
     }
 }
