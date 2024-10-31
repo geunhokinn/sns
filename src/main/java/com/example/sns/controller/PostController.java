@@ -32,4 +32,12 @@ public class PostController {
 
         return Response.success(updateResponse);
     }
+
+    @DeleteMapping("/{postId}")
+    public Response<Void> deletePost(@PathVariable Long postId, Authentication authentication) {
+
+        postService.deletePost(authentication.getName(), postId);
+
+        return Response.success();
+    }
 }
