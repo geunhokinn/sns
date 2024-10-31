@@ -14,7 +14,7 @@ import java.time.Instant;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLDelete(sql = "UPDATE user SET deleted_at = NOW() where id = ?")
+@SQLDelete(sql = "UPDATE post SET deleted_at = NOW() where id = ?")
 @Where(clause = "deleted_at is NULL")
 public class Post {
 
