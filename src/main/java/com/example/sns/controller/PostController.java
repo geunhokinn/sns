@@ -6,6 +6,8 @@ import com.example.sns.response.Response;
 import com.example.sns.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,5 +41,17 @@ public class PostController {
         postService.deletePost(authentication.getName(), postId);
 
         return Response.success();
+    }
+
+    @GetMapping
+    public Response<Page<PostResponse.ReadDTO>> readPosts(Pageable pageable, Authentication authentication) {
+
+       return Response.success(postService.readPosts(pageable));
+    }
+
+    @GetMapping("/my")
+    public Response<Page<PostResponse.ReadDTO>> readMyPosts(Pageable pageable, Authentication authentication) {
+
+        return Response.success(postService.readMyPosts(authentication.getName(), pageable));
     }
 }
