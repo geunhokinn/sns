@@ -44,4 +44,40 @@ public class PostResponse {
                     .build();
         }
     }
+
+    @Getter
+    @NoArgsConstructor
+    public static class ReadDTO {
+
+        private Long id;
+        private String title;
+        private String body;
+        private UserResponse.JoinDTO userResponse;
+        private Timestamp registeredAt;
+        private Timestamp updatedAt;
+        private Timestamp deletedAt;
+
+        @Builder
+        private ReadDTO(Long id, String title, String body, UserResponse.JoinDTO userResponse, Timestamp registeredAt, Timestamp updatedAt, Timestamp deletedAt) {
+            this.id = id;
+            this.title = title;
+            this.body = body;
+            this.userResponse = userResponse;
+            this.registeredAt = registeredAt;
+            this.updatedAt = updatedAt;
+            this.deletedAt = deletedAt;
+        }
+
+        public static PostResponse.ReadDTO from(Post post) {
+            return ReadDTO.builder()
+                    .id(post.getId())
+                    .title(post.getTitle())
+                    .body(post.getBody())
+                    .userResponse(UserResponse.JoinDTO.from(post.getUser()))
+                    .registeredAt(post.getRegisteredAt())
+                    .updatedAt(post.getUpdatedAt())
+                    .deletedAt(post.getDeletedAt())
+                    .build();
+        }
+    }
 }
