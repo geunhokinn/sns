@@ -30,7 +30,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
         if (authorization == null || !authorization.startsWith("Bearer ")) {
 
-            log.info("token null");
+            log.info("Error occurs while getting header. header is null or invalid {}", request.getRequestURI());
             filterChain.doFilter(request, response);
 
             return;
