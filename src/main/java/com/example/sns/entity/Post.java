@@ -10,6 +10,8 @@ import org.hibernate.annotations.Where;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -30,6 +32,9 @@ public class Post {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "post", cascade = CascadeType.REMOVE)
+    private final List<LikeEntity> likeEntities = new ArrayList<>();
 
     private Timestamp registeredAt;
 
@@ -73,6 +78,16 @@ public class Post {
 
         if(!user.getPosts().contains(this)) {
             user.addPost(this);
+        }
+    }
+
+    // Post 1 <-> N Like
+    // 양방향 연관관계 편의 메서드
+    public void addLikeEntity(LikeEntity likeEntity) {
+        this.likeEntities.add(likeEntity);
+
+        if(likeEntity.getPost() != this) {
+            likeEntity.assignPost(this);
         }
     }
 
