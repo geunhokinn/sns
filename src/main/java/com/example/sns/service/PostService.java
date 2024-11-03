@@ -96,7 +96,6 @@ public class PostService {
         likeEntityRepository.save(LikeEntity.of(user, post));
     }
 
-    @Transactional
     public Long getLikeCountForPost(Long postId) {
 
         Post post = postRepository.findById(postId)
