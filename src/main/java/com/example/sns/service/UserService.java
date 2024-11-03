@@ -23,7 +23,7 @@ public class UserService {
     @Transactional
     public UserResponse.JoinDTO join(String username, String password) {
         // 회원가입하려는 username 으로 회원가입된 user 가 있는지
-        userRepository.findByUsername(username).ifPresent(u -> {
+        userRepository.findByUsername(username).ifPresent(existingUser -> {
             throw new SnsApplicationException(ErrorCode.DUPLICATED_USER_NAME, String.format("%s is duplicated", username));
         });
 
