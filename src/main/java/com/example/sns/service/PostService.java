@@ -1,11 +1,14 @@
 package com.example.sns.service;
 
+import com.example.sns.dto.CommentResponse;
 import com.example.sns.dto.PostResponse;
+import com.example.sns.entity.Comment;
 import com.example.sns.entity.LikeEntity;
 import com.example.sns.entity.Post;
 import com.example.sns.entity.User;
 import com.example.sns.enumerate.ErrorCode;
 import com.example.sns.exception.SnsApplicationException;
+import com.example.sns.repository.CommentRepository;
 import com.example.sns.repository.LikeEntityRepository;
 import com.example.sns.repository.PostRepository;
 import com.example.sns.repository.UserRepository;
@@ -23,6 +26,7 @@ public class PostService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final LikeEntityRepository likeEntityRepository;
+    private final CommentRepository commentRepository;
 
     @Transactional
     public void createPost(String title, String body, String username) {
@@ -102,5 +106,25 @@ public class PostService {
                 .orElseThrow(() -> new SnsApplicationException(ErrorCode.POST_NOT_FOUND, String.format("%s not founded", postId)));
 
         return likeEntityRepository.countByPost(post);
+    }
+
+    @Transactional
+    public void createComment(Long postId, String comment, String username) {
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new SnsApplicationException(ErrorCode.USER_NOT_FOUND, String.format("%s not founded", username)));
+
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new SnsApplicationException(ErrorCode.POST_NOT_FOUND, String.format("%s not founded", postId)));
+
+        commentRepository.save(Comment.of(user, post, comment));
+    }
+
+    public Page<CommentResponse.ReadDTO> getComments(Long postId, Pageable pageable) {
+
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new SnsApplicationException(ErrorCode.POST_NOT_FOUND, String.format("%s not founded", postId)));
+
+        return commentRepository.findAllByPost(post, pageable).map(CommentResponse.ReadDTO::from);
     }
 }

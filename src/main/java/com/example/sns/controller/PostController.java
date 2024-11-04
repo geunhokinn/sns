@@ -1,5 +1,7 @@
 package com.example.sns.controller;
 
+import com.example.sns.dto.CommentRequest;
+import com.example.sns.dto.CommentResponse;
 import com.example.sns.dto.PostRequest;
 import com.example.sns.dto.PostResponse;
 import com.example.sns.response.Response;
@@ -67,5 +69,18 @@ public class PostController {
     public Response<Long> getLikeCountForPost(@PathVariable Long postId, Authentication authentication) {
 
         return Response.success(postService.getLikeCountForPost(postId));
+    }
+
+    @PostMapping("/{postId}/comments")
+    public Response<Void> createComment(@PathVariable Long postId, @RequestBody CommentRequest.CreateDTO createDTO, Authentication authentication) {
+
+        postService.createComment(postId, createDTO.getComment(), authentication.getName());
+        return Response.success();
+    }
+
+    @GetMapping("/{postId}/comments")
+    public Response<Page<CommentResponse.ReadDTO>> getComments(@PathVariable Long postId, Pageable pageable , Authentication authentication) {
+
+        return Response.success(postService.getComments(postId, pageable));
     }
 }
