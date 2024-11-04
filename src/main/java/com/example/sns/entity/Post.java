@@ -36,6 +36,9 @@ public class Post {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "post", cascade = CascadeType.REMOVE)
     private final List<LikeEntity> likeEntities = new ArrayList<>();
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "post", cascade = CascadeType.REMOVE)
+    private final List<Comment> comments = new ArrayList<>();
+
     private Timestamp registeredAt;
 
     private Timestamp updatedAt;
@@ -88,6 +91,16 @@ public class Post {
 
         if(likeEntity.getPost() != this) {
             likeEntity.assignPost(this);
+        }
+    }
+
+    // Post 1 <-> N Comment
+    // 양방향 연관관계 편의 메서드
+    public void addComment(Comment comment) {
+        this.comments.add(comment);
+
+        if(comment.getPost() != this) {
+            comment.assignPost(this);
         }
     }
 

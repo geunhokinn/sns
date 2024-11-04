@@ -42,6 +42,9 @@ public class User {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.REMOVE)
     private final List<LikeEntity> likeEntities = new ArrayList<>();
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.REMOVE)
+    private final List<Comment> comments = new ArrayList<>();
+
     @PrePersist
     void createdAt() {
         this.createdAt = Timestamp.from(Instant.now());
@@ -85,6 +88,16 @@ public class User {
 
         if(likeEntity.getUser() != this) {
             likeEntity.assignUser(this);
+        }
+    }
+
+    // User 1 <-> N Comment
+    // 양방향 연관관계 편의 메서드
+    public void addComment(Comment comment) {
+        this.comments.add(comment);
+
+        if(comment.getUser() != this) {
+            comment.assignUser(this);
         }
     }
 }
