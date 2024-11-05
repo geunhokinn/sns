@@ -2,16 +2,12 @@ package com.example.sns.service;
 
 import com.example.sns.dto.CommentResponse;
 import com.example.sns.dto.PostResponse;
-import com.example.sns.entity.Comment;
-import com.example.sns.entity.LikeEntity;
-import com.example.sns.entity.Post;
-import com.example.sns.entity.User;
+import com.example.sns.entity.*;
+import com.example.sns.entity.model.AlarmArgs;
+import com.example.sns.enumerate.AlarmType;
 import com.example.sns.enumerate.ErrorCode;
 import com.example.sns.exception.SnsApplicationException;
-import com.example.sns.repository.CommentRepository;
-import com.example.sns.repository.LikeEntityRepository;
-import com.example.sns.repository.PostRepository;
-import com.example.sns.repository.UserRepository;
+import com.example.sns.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +23,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final LikeEntityRepository likeEntityRepository;
     private final CommentRepository commentRepository;
+    private final AlarmRepository alarmRepository;
 
     @Transactional
     public void createPost(String title, String body, String username) {
@@ -98,6 +95,8 @@ public class PostService {
         });
 
         likeEntityRepository.save(LikeEntity.of(user, post));
+
+        alarmRepository.save(Alarm.of(post.getUser(), AlarmType.NEW_LIKE_ON_POST, AlarmArgs.of(user.getId(), post.getId())));
     }
 
     public Long getLikeCountForPost(Long postId) {
@@ -118,6 +117,8 @@ public class PostService {
                 .orElseThrow(() -> new SnsApplicationException(ErrorCode.POST_NOT_FOUND, String.format("%s not founded", postId)));
 
         commentRepository.save(Comment.of(user, post, comment));
+
+        alarmRepository.save(Alarm.of(post.getUser(), AlarmType.NEW_COMMENT_ON_POST, AlarmArgs.of(user.getId(), post.getId())));
     }
 
     public Page<CommentResponse.ReadDTO> getComments(Long postId, Pageable pageable) {
