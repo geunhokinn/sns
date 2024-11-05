@@ -1,12 +1,16 @@
 package com.example.sns.service;
 
+import com.example.sns.dto.AlarmResponse;
 import com.example.sns.dto.UserResponse;
 import com.example.sns.entity.User;
 import com.example.sns.enumerate.ErrorCode;
 import com.example.sns.exception.SnsApplicationException;
+import com.example.sns.repository.AlarmRepository;
 import com.example.sns.repository.UserRepository;
 import com.example.sns.util.JWTUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final AlarmRepository alarmRepository;
+
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JWTUtil jwtUtil;
 
@@ -51,5 +57,13 @@ public class UserService {
         return UserResponse.LoginDTO.builder()
                 .token(token)
                 .build();
+    }
+
+    public Page<AlarmResponse.ReadDTO> getAlarmList(Pageable pageable, String username) {
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new SnsApplicationException(ErrorCode.USER_NOT_FOUND, String.format("%s not founded", username)));
+
+        return alarmRepository.findAllByUser(user, pageable).map(AlarmResponse.ReadDTO::from);
     }
 }
