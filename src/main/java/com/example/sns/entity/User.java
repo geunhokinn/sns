@@ -45,6 +45,9 @@ public class User {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.REMOVE)
     private final List<Comment> comments = new ArrayList<>();
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.REMOVE)
+    private final List<Alarm> alarms = new ArrayList<>();
+
     @PrePersist
     void createdAt() {
         this.createdAt = Timestamp.from(Instant.now());
@@ -98,6 +101,16 @@ public class User {
 
         if(comment.getUser() != this) {
             comment.assignUser(this);
+        }
+    }
+
+    // User 1 <-> N Alarm
+    // 양방향 연관관계 편의 메서드
+    public void addAlarm(Alarm alarm) {
+        this.alarms.add(alarm);
+
+        if(alarm.getUser() != this) {
+            alarm.assignUser(this);
         }
     }
 }
