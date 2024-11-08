@@ -30,7 +30,7 @@ public class User {
 
     private String role;
 
-    private Timestamp createdAt;
+    private Timestamp registeredAt;
 
     private Timestamp updatedAt;
 
@@ -49,8 +49,8 @@ public class User {
     private final List<Alarm> alarms = new ArrayList<>();
 
     @PrePersist
-    void createdAt() {
-        this.createdAt = Timestamp.from(Instant.now());
+    void registeredAt() {
+        this.registeredAt = Timestamp.from(Instant.now());
     }
 
     @PreUpdate
