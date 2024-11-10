@@ -16,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -23,22 +24,32 @@ public class JWTFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
 
+    private final static List<String> TOKEN_IN_PARAM_URLS = List.of("/api/v1/users/alarm/subscribe");
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
+        final String token;
 
-        if (authorization == null || !authorization.startsWith("Bearer ")) {
+        if (TOKEN_IN_PARAM_URLS.contains(request.getRequestURI())) {
+            log.info("Request with {} check the query param", request.getRequestURI());
+            token = request.getQueryString().split("=")[1].trim();
+        } else {
 
-            log.info("Error occurs while getting header. header is null or invalid {}", request.getRequestURI());
-            filterChain.doFilter(request, response);
+            String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-            return;
+            if (authorization == null || !authorization.startsWith("Bearer ")) {
+
+                log.info("Error occurs while getting header. header is null or invalid {}", request.getRequestURI());
+                filterChain.doFilter(request, response);
+
+                return;
+            }
+
+            log.info("authorization now");
+
+            token = authorization.split(" ")[1];
         }
-
-        log.info("authorization now");
-
-        String token = authorization.split(" ")[1];
 
         if (jwtUtil.isExpired(token)) {
 
