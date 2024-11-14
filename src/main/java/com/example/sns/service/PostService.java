@@ -25,6 +25,8 @@ public class PostService {
     private final CommentRepository commentRepository;
     private final AlarmRepository alarmRepository;
 
+    private final AlarmService alarmService;
+
     @Transactional
     public void createPost(String title, String body, String username) {
 
@@ -98,7 +100,8 @@ public class PostService {
 
         likeEntityRepository.save(LikeEntity.of(user, post));
 
-        alarmRepository.save(Alarm.of(post.getUser(), AlarmType.NEW_LIKE_ON_POST, AlarmArgs.of(user.getId(), post.getId())));
+        Alarm alarm = alarmRepository.save(Alarm.of(post.getUser(), AlarmType.NEW_LIKE_ON_POST, AlarmArgs.of(user.getId(), post.getId())));
+        alarmService.send(alarm.getId(), post.getId());
     }
 
     public Long getLikeCountForPost(Long postId) {
@@ -120,7 +123,8 @@ public class PostService {
 
         commentRepository.save(Comment.of(user, post, comment));
 
-        alarmRepository.save(Alarm.of(post.getUser(), AlarmType.NEW_COMMENT_ON_POST, AlarmArgs.of(user.getId(), post.getId())));
+        Alarm alarm = alarmRepository.save(Alarm.of(post.getUser(), AlarmType.NEW_COMMENT_ON_POST, AlarmArgs.of(user.getId(), post.getId())));
+        alarmService.send(alarm.getId(), post.getId());
     }
 
     public Page<CommentResponse.ReadDTO> getComments(Long postId, Pageable pageable) {
